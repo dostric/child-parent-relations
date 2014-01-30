@@ -2,14 +2,14 @@
 
 $ss = new SearchSettings(array(
 
-    'id' => 100
+'id' => 100
 
 ));
 
 $ls = new LoadSettings(array(
 
-    'object'    => true,
-    'units'     => true
+'object'    => true,
+'units'     => true
 
 ));
 
@@ -61,8 +61,8 @@ $availability = $object->availability()->all();
 
 // find the objects matching the search, load the data provided by load settings
 $oCnt = ObjectController::make($ss, $ls)
-    ->find()
-    ->load();
+->find()
+->load();
 
 // get the objects
 $objects = $oCnt->all();
@@ -72,3 +72,21 @@ $object = $oCnt->get(100);
 
 // how many objects did we found - if we are using pagination this is the total object count
 $total = $oCnt->getList()->total;
+$ids = $oCnt->getList()->idList;
+
+
+
+// custom finder
+// base setup, search and load settings are optional
+$oCnt = ObjectController::make($ss, $ls);
+
+// do something, check something, setup something
+
+// we`ll find by new data
+$oCnt->find($ss);
+
+// do something, check something, setup something
+
+// we`ll load children by new settings
+$oCnt->load($ls);
+

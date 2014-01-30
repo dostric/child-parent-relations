@@ -85,6 +85,7 @@ class Unit {
 
     public function isLoaded() {
         // check if the id
+        return true;
     }
 
 
@@ -129,4 +130,8 @@ class Unit {
 
     }
 
+
+    public function getId() {
+        return $this->isLoaded() ? $this->data->id : null;
+    }
 }

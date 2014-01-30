@@ -2,7 +2,7 @@
 
 
 
-class UnitController {
+class UnitController implements  ParentControllerInterface {
 
 
     protected $ss;
@@ -27,9 +27,17 @@ class UnitController {
     protected $units;
 
 
+    /**
+     * @var Unit_List
+     */
+    private $found;
+
+
     public function __construct($object = null, $ss = null, $ls = null) {
 
         $this->units = array();
+
+        $this->found = new Unit_List();
 
         // if we have the relation to the object store it.
         // the relation is optional in the case we are loading some arbitrary units.
@@ -58,6 +66,39 @@ class UnitController {
         return $this->object instanceof Object ? $this->object : null;
     }
 
+
+    public function find($ss) {
+        // search for units based on input params
+
+        // reset the found data
+        $this->found = new Unit_List();
+
+        // find the units
+        $unitDummyList = array(
+            (object)array(
+                'id'        => '100',       // unit id
+                'unitName'  => 'Room 1'
+            ),
+            (object)array(
+                'id'        => '200',
+                'unitName'  => 'Room 2'
+            )
+        );
+
+        $this->found->total = count($unitDummyList); // example
+
+        foreach($unitDummyList as $unit) {
+
+            $this->found->idList[] = $unit;
+            $this->found->data[$unit->getId()] = $unit; // cache the model data
+
+        }
+
+        return $this;
+
+    }
+
+
     public function load($ss = null, $ls = null) {
 
         // perform the unit serach query based on search settings.
@@ -83,7 +124,7 @@ class UnitController {
                 // save the unit to unit controller relation - pass the reference $this
                 // if we found the unit we have its id - we`ll use unit loading by id
                 // we need load settings to know what additionally to load for the unit
-                $this->units[$item->id] = new Unit($this, $item->id, $ls);
+                $this->add(new Unit($this, $item->id, $ls));
 
             }
 
@@ -95,11 +136,6 @@ class UnitController {
 
         return $this;
 
-    }
-
-
-    public function hasUnits() {
-        return count($this->units)>0;
     }
 
 
@@ -129,6 +165,41 @@ class UnitController {
     }
 
 
+    /**
+     * @return int
+     */
+    public function count() {
+        return count($this->units);
+    }
+
+
+    /**
+     * @return Unit_List
+     */
+    public function getList() {
+        return $this->found;
+    }
+
+
+    public function add($unit) {
+
+        if ($unit instanceof Unit && $unit->getId()) {
+            $this->units[$unit->getId()] = $unit;
+        }
+
+        return $this;
+
+    }
+
+
+    public function remove($id) {
+        if ($this->has($id)) {
+            unset($this->units[$id]);
+        }
+        return $this;
+    }
+
+
     public function getPriceList() {
 
         $pl = array();
@@ -143,6 +214,7 @@ class UnitController {
         return $pl;
 
     }
+
 
     public function getAvailability() {
 
@@ -171,6 +243,7 @@ class UnitController {
         if ($ss->dateFrom && $ss->dateTo && count($periods = $this->getAvailability())) {
 
             try {
+
                 $dateFrom = new datetime($ss->dateFrom);
                 $dateTo = new datetime($ss->dateTo);
 
@@ -192,3 +265,11 @@ class UnitController {
 
 }
 
+
+class Unit_List {
+
+    public $total;
+    public $idList;
+    public $data;
+
+}

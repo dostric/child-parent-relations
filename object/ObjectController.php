@@ -7,7 +7,7 @@
  * Class Object
  *
  */
-class ObjectController {
+class ObjectController implements ParentControllerInterface {
 
 
     /**
@@ -115,7 +115,7 @@ class ObjectController {
     }
 
 
-    public function load(LoadSettings $ls = null) {
+    public function load($ls = null) {
 
         // check if we found some objects in the search process.
         if ($this->found && $this->found->total) {
@@ -123,7 +123,12 @@ class ObjectController {
             // iterate through the found object id list and load the objects.
             foreach($this->found->idList as $id) {
 
-                $this->objects[$id] = Object::make($id, $ls ? $ls : $this->ls);
+                // we are using custom load settings; set it
+                if ($ls instanceof LoadSettings) {
+                    $this->ls = $ls;
+                }
+
+                $this->add(Object::make($id, $this->ls));
 
             }
 
@@ -135,15 +140,6 @@ class ObjectController {
 
 
     /**
-     * @param $id
-     * @return null|Object
-     */
-    public function get($id) {
-        return array_key_exists($id, $this->objects) ? $this->objects[$id] : null;
-    }
-
-
-    /**
      * @return Object[]
      */
     public function all() {
@@ -151,8 +147,58 @@ class ObjectController {
     }
 
 
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function has($id) {
+        return array_key_exists($id, $this->objects);
+    }
+
+
+    /**
+     * @param $id
+     * @return null|Object
+     */
+    public function get($id) {
+        return $this->has($id) ? $this->objects[$id] : null;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function count() {
+        return count($this->objects);
+    }
+
+
+    /**
+     * @return Object_List
+     */
     public function getList() {
         return $this->found;
+    }
+
+
+    public function add($object) {
+
+        if ($object instanceof Object && $object->getId()) {
+            $this->objects[$object->getId()] = $object;
+        }
+
+        return $this;
+
+    }
+
+
+    public function remove($id) {
+
+        if ($this->has($id)) {
+            unset($this->objects[$id]);
+        }
+        return $this;
+
     }
 
 }

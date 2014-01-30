@@ -6,7 +6,7 @@
  * Handles multiple price lists functionality.
  *
  */
-class PriceListController {
+class PriceListController implements ParentControllerInterface {
 
 
     protected $object;
@@ -80,6 +80,11 @@ class PriceListController {
      */
     public function get($id) {
         return array_key_exists($id, $this->priceLists) ? $this->priceLists[$id] : null;
+    }
+
+
+    public function getList() {
+        return $this->found;
     }
 
 
