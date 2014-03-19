@@ -1,5 +1,7 @@
 <?php
 
+
+
 /**
  * Class handles one object features.
  *
@@ -7,9 +9,7 @@
  * Uses load settings class (if provided) to determine what entities to laod.
  *
  */
-
-
-class Object {
+class Object implements ControllerInterface {
 
 
     /**
@@ -17,34 +17,42 @@ class Object {
      */
     protected $id;          // object id
 
-    protected $data;        // usually represents the main object data - the model.
+
+    /**
+     * @var Object_Model
+     */
+    protected $model;        // usually represents the main object data - the model.
 
 
     /**
-     * @var UnitController
+     * @var UnitCollection
      */
     protected $units;           // contains the child items (units).
 
 
     /**
-     * @var DescriptionController
+     * @var DescriptionCollection
      */
     protected $descriptions;    // description controller - contains object descriptions
 
 
     /**
-     * @var AvailabilityController
+     * @var AvailabilityCollection
      */
     protected $availability;
 
 
     protected $priceList;
 
+
+
     /**
      * @param mixed $ss main input parameter - represents usually the id or the settings class that defines what object to load.
      * @param mixed $ls the load settings class that determines what entities of the object to load.
      */
     public function __construct($ss = null, $ls = null) {
+
+        $this->id = null;
 
         if ($ss) $this->load($ss, $ls);
 
@@ -110,7 +118,7 @@ class Object {
         if ($object->id && $ss->id == $object->id) {
 
             // the loaded object id valid
-            $this->data = $object;
+            $this->model = new Object_Model($object);
             $this->id = $object->id;
 
             // do we have something else to load.
@@ -159,7 +167,7 @@ class Object {
 
             // we are creating a collection of object units (the UnitController) and passing the task to load them to the controller.
             // we`ll provide the reference to the object - the units then can have access to each other.
-            $this->units = UnitController::make($this, $ss, $ls);
+            $this->units = UnitCollection::make($this, $ss, $ls);
 
         }
 
@@ -203,8 +211,8 @@ class Object {
     }
 
 
-    public function getObjectData($somethingSpecific = null) {
-        return $somethingSpecific === null ? $this->data : $this->data->{$somethingSpecific};
+    public function model($key = null) {
+        return $key === null ? $this->model : $this->model->{$key};
     }
 
 
@@ -226,31 +234,23 @@ class Object {
     /**
      * The unit controller holds the array of object units (unit class).
      *
-     * @return UnitController
+     * @return UnitCollection
      */
     public function units() {
-        return $this->units instanceof UnitController ? $this->units : $this->units = new UnitController($this);
+        return $this->units instanceof UnitCollection ? $this->units : $this->units = new UnitCollection($this);
     }
 
 
     /**
-     * @return bool
-     */
-    public function hasUnits() {
-        return $this->units()->hasUnits();
-    }
-
-
-    /**
-     * @return DescriptionController
+     * @return DescriptionCollection
      */
     public function descriptions() {
-        return $this->descriptions instanceof DescriptionController ? $this->descriptions : $this->descriptions = new DescriptionController($this);
+        return $this->descriptions instanceof DescriptionCollection ? $this->descriptions : $this->descriptions = new DescriptionCollection($this);
     }
 
 
     /**
-     * @return PriceList
+     * @return PriceListCollection
      */
     public function priceList() {
         return $this->priceList instanceof PriceList ? $this->priceList : $this->priceList = new PriceList($this);
@@ -258,10 +258,10 @@ class Object {
 
 
     /**
-     * @return AvailabilityController
+     * @return AvailabilityCollection
      */
     public function availability() {
-        return $this->availability instanceof AvailabilityController ? $this->availability : $this->availability = new AvailabilityController($this);
+        return $this->availability instanceof AvailabilityCollection ? $this->availability : $this->availability = new AvailabilityCollection($this);
     }
 
 

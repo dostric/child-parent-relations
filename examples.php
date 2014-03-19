@@ -8,8 +8,8 @@ $ss = new SearchSettings(array(
 
 $ls = new LoadSettings(array(
 
-'object'    => true,
-'units'     => true
+    'object'    => true,
+    'units'     => true
 
 ));
 
@@ -48,7 +48,7 @@ $priceList = $object->priceList()->all();
 $unitPrices = $object->units()->get(100)->getPriceList();
 
 // custom price list filtering
-$customPriceList = $object->priceList()->filter(/* custom filtering data */);
+$customPriceList = $object->priceList()->filter(function ($item) {});
 
 
 
@@ -60,7 +60,7 @@ $availability = $object->availability()->all();
 
 
 // find the objects matching the search, load the data provided by load settings
-$oCnt = ObjectController::make($ss, $ls)
+$oCnt = ObjectCollection::make($ss, $ls)
 ->find()
 ->load();
 
@@ -78,7 +78,7 @@ $ids = $oCnt->getList()->idList;
 
 // custom finder
 // base setup, search and load settings are optional
-$oCnt = ObjectController::make($ss, $ls);
+$oCnt = ObjectCollection::make($ss, $ls);
 
 // do something, check something, setup something
 

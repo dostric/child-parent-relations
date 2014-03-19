@@ -1,14 +1,21 @@
 <?php
 
 
-class ImageController implements ControllerInterface {
+/**
+ * Class ImageController
+ *
+ * @method Image_Model get($id, $default = null)
+ * @method Image_Model[] all()
+ *
+ */
+class ImageCollection extends CollectionBase implements ControllerSearchableInterface {
 
 
     protected $parent;
 
 
     /**
-     * @var Image[]
+     * @var Image_Model[]
      */
     protected $images;
 
@@ -27,28 +34,17 @@ class ImageController implements ControllerInterface {
     }
 
 
-    public function load($ss) {
-
-    }
-
-    public function filter() {
+    public function find($ss) {
 
     }
 
 
-    public function all() {
-        return $this->images;
-    }
-
-    public function count() {
+    public function load($ls) {
 
     }
 
-    public function add($image) {
 
-    }
-
-    public function remove($image) {
+    public function getList() {
 
     }
 

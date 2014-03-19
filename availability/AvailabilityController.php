@@ -1,18 +1,22 @@
 <?php
 
 
-class AvailabilityController implements ControllerInterface {
+
+/**
+ * Class AvailabilityController
+ *
+ * @method AvailabilityPeriod_Model get($id, $default = null)
+ * @method AvailabilityPeriod_Model[] all()
+ *
+ */
+class AvailabilityCollection extends CollectionBase implements ControllerSearchableInterface {
+
 
     protected $object;
 
 
-    /**
-     * @var AvailabilityItem[]
-     */
-    protected $periods;
-
-
     protected $found;
+
 
 
     public function __construct($object = null) {
@@ -38,66 +42,13 @@ class AvailabilityController implements ControllerInterface {
     }
 
 
-    public function get($id) {
+    public function find($ss = null) {
 
     }
 
-
-    public function all() {
-        return $this->periods;
-    }
-
-
-    public function has($id) {
-        return array_key_exists($id, $this->periods);
-    }
 
     public function getList() {
         return $this->found;
-    }
-
-
-    public function count() {
-        return count($this->periods);
-    }
-
-
-    public function add($item) {
-
-    }
-
-
-    public function remove($id) {
-
-    }
-
-    /**
-     * @return AvailabilityItem[]
-     */
-    public function filter() {
-
-        // iterate through availability periods and find matching items
-
-        return array();
-
-    }
-
-
-}
-
-
-
-
-class AvailabilityItem {
-
-
-    public function __construct() {
-
-    }
-
-
-    public static function make() {
-        return new static();
     }
 
 }

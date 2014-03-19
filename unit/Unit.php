@@ -2,15 +2,17 @@
 
 
 
-class Unit {
+class Unit implements ControllerInterface {
 
 
     /**
-     * @var UnitController
+     * @var UnitCollection
      */
     protected $parent;
 
+
     protected $id;
+
 
     protected $data;
 
@@ -22,7 +24,7 @@ class Unit {
      */
     public function __construct($parent = null, $ss = null, $ls = null) {
 
-        if ($parent && $parent instanceof UnitController) {
+        if ($parent && $parent instanceof UnitCollection) {
             $this->parent = $parent;
         }
 
@@ -83,6 +85,16 @@ class Unit {
     }
 
 
+    public function model($key = null) {
+
+    }
+
+
+    public function getId() {
+        return $this->isLoaded() ? $this->data->id : null;
+    }
+
+
     public function isLoaded() {
         // check if the id
         return true;
@@ -112,7 +124,7 @@ class Unit {
 
 
     public function getObject() {
-        return $this->parent instanceof UnitController ? $this->parent->getObject() : null;
+        return $this->parent instanceof UnitCollection ? $this->parent->getObject() : null;
     }
 
 
@@ -131,7 +143,5 @@ class Unit {
     }
 
 
-    public function getId() {
-        return $this->isLoaded() ? $this->data->id : null;
-    }
+
 }

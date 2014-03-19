@@ -6,14 +6,20 @@
  *
  * Class Object
  *
+ *
+ * @method Object get($id, $default = null)
+ * @method Object[] all()
+ *
+ *
  */
-class ObjectController implements ParentControllerInterface {
+class ObjectCollection extends CollectionBase implements ControllerSearchableInterface {
 
 
     /**
      * @var SearchSettings
      */
     protected $ss;
+
 
     /**
      * @var LoadSettings
@@ -22,14 +28,7 @@ class ObjectController implements ParentControllerInterface {
 
 
     /**
-     * @var Object[]
-     */
-    protected $objects;
-
-
-    /**
-     * The search result data.
-     * The data should be private to avoid wrong loading. We must use class methods to search for objects.
+     * Holds the last search result data.
      *
      * @var Object_List
      */
@@ -44,6 +43,14 @@ class ObjectController implements ParentControllerInterface {
         $this->ls = $ls;
 
         $this->found = new Object_List();
+
+        if ($ss) {
+
+            $this->find($ss);
+
+            if ($ls) $this->load($ls);
+
+        }
 
     }
 
@@ -139,38 +146,6 @@ class ObjectController implements ParentControllerInterface {
     }
 
 
-    /**
-     * @return Object[]
-     */
-    public function all() {
-        return $this->objects;
-    }
-
-
-    /**
-     * @param $id
-     * @return bool
-     */
-    public function has($id) {
-        return array_key_exists($id, $this->objects);
-    }
-
-
-    /**
-     * @param $id
-     * @return null|Object
-     */
-    public function get($id) {
-        return $this->has($id) ? $this->objects[$id] : null;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function count() {
-        return count($this->objects);
-    }
 
 
     /**
@@ -181,25 +156,11 @@ class ObjectController implements ParentControllerInterface {
     }
 
 
-    public function add($object) {
-
-        if ($object instanceof Object && $object->getId()) {
-            $this->objects[$object->getId()] = $object;
-        }
-
-        return $this;
-
-    }
 
 
-    public function remove($id) {
 
-        if ($this->has($id)) {
-            unset($this->objects[$id]);
-        }
-        return $this;
 
-    }
+
 
 }
 

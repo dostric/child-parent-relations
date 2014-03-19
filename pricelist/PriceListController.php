@@ -5,8 +5,10 @@
  *
  * Handles multiple price lists functionality.
  *
+ * @method PriceList get($key, $default = null)
+ * @method PriceList[] all()
  */
-class PriceListController implements ParentControllerInterface {
+class PriceListCollection extends CollectionBase implements ControllerSearchableInterface {
 
 
     protected $object;
@@ -24,17 +26,19 @@ class PriceListController implements ParentControllerInterface {
     private $found;
 
 
-    public function __construct() {
+    public function __construct($object = null) {
 
         $this->priceLists = new PriceList();
 
         $this->found = new PriceList_List();
 
+        $this->object = $object;
+
     }
 
 
-    public static function make() {
-        return new static();
+    public static function make($object = null) {
+        return new static($object);
     }
 
 
@@ -52,34 +56,16 @@ class PriceListController implements ParentControllerInterface {
 
 
     /**
-     * @param null|array|SearchSettings $ss
+     * @param null|array|SearchSettings $ls
      * @return $this
      */
-    public function load($ss = null) {
+    public function load($ls = null) {
 
         // if search settings are provided load the corresponding price list.
         // else if we have the object - load its price list.
 
         return $this;
 
-    }
-
-
-    /**
-     * @return PriceListItem[]
-     */
-    public function filter() {
-        // filter price list items
-        return array();
-    }
-
-
-    /**
-     * @param int $id
-     * @return PriceList|null
-     */
-    public function get($id) {
-        return array_key_exists($id, $this->priceLists) ? $this->priceLists[$id] : null;
     }
 
 
