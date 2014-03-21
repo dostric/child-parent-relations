@@ -1,7 +1,7 @@
 <?php
 
 
-interface ControllerSearchableInterface {
+interface ControllerFetchableInterface {
 
 
     public function count();

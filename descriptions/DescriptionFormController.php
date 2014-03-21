@@ -59,11 +59,13 @@ class DescriptionCollection extends CollectionBase implements ControllerSearchab
 
     public function find($ss) {
 
+        return $this;
     }
 
 
-    public function load($ls) {
+    public function load($ls = null) {
 
+        return $this;
     }
 
 

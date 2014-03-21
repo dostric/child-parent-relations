@@ -31,24 +31,25 @@ class AvailabilityCollection extends CollectionBase implements ControllerSearcha
     }
 
 
+    public function find($ss = null) {
+
+    }
+
+
     /**
      * Load previously found availability periods.
      *
      * @param $ls
      * @return $this
      */
-    public function load($ls) {
+    public function load($ls = null) {
         return $this;
-    }
-
-
-    public function find($ss = null) {
-
     }
 
 
     public function getList() {
         return $this->found;
     }
+
 
 }

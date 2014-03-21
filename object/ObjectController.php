@@ -22,12 +22,6 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
 
 
     /**
-     * @var LoadSettings
-     */
-    protected $ls;
-
-
-    /**
      * Holds the last search result data.
      *
      * @var Object_List
@@ -36,27 +30,25 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
 
 
 
-    public function __construct(SearchSettings $ss = null, LoadSettings $ls = null) {
+    public function __construct(SearchSettings $ss = null) {
 
         $this->ss = $ss;
 
-        $this->ls = $ls;
-
         $this->found = new Object_List();
 
-        if ($ss) {
+        if ($this->ss) {
 
-            $this->find($ss);
-
-            if ($ls) $this->load($ls);
+            $this
+                ->find($this->ss)
+                ->load();
 
         }
 
     }
 
 
-    public static function make(SearchSettings $ss = null, LoadSettings $ls = null) {
-        return new static($ss, $ls);
+    public static function make(SearchSettings $ss = null) {
+        return new static($ss);
     }
 
 
@@ -122,7 +114,7 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
     }
 
 
-    public function load($ls = null) {
+    public function load() {
 
         // check if we found some objects in the search process.
         if ($this->found && $this->found->total) {
@@ -130,12 +122,7 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
             // iterate through the found object id list and load the objects.
             foreach($this->found->idList as $id) {
 
-                // we are using custom load settings; set it
-                if ($ls instanceof LoadSettings) {
-                    $this->ls = $ls;
-                }
-
-                $this->add(Object::make($id, $this->ls));
+                $this->add(Object::make($id));
 
             }
 
@@ -166,38 +153,11 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
 
 
 /**
- * Simple class that stores the object search results.
+ * Object search results.
  *
  * Class Object_List
  *
  */
-class Object_List {
-
-    /**
-     * Total of objects found.
-     * @var int
-     */
-    public $total = 0;
-
-    /**
-     * Found object id list array.
-     * @var array
-     */
-    public $idList = array();
-
-    /**
-     * Property holds the cached object data.
-     * If we do not need extra object data - then all the data is already loaded by the search.
-     * In that case we can use this data to avoid double loading.
-     *
-     * @var array
-     */
-    public $data = array();
-
-
-    public function toArray() {
-        return get_object_vars($this);
-    }
-
+class Object_List extends SearchResultBase {
 
 }

@@ -1,14 +1,17 @@
 <?php
 
 
-
+/**
+ * Class UnitCollection
+ *
+ * @method Unit get($id, $default = null)
+ * @method Unit[] all()
+ *
+ */
 class UnitCollection extends CollectionBase implements  ControllerSearchableInterface {
 
 
     protected $ss;
-
-
-    protected $ls;
 
 
     /**
@@ -33,36 +36,39 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
     private $found;
 
 
-    public function __construct($object = null, $ss = null, $ls = null) {
+    public function __construct($object = null, $ss = null) {
 
-        // if we have the relation to the object store it.
-        // the relation is optional in the case we are loading some arbitrary units.
-        $this->object = $object;
-
+        // defaults
         $this->units = array();
 
         $this->found = new Unit_List();
 
-        // detect the search data
-        // we cal load object units (search key will be the object id, or some other arbitrary data - then we are loading custom units)
-        if ($ss instanceof SearchSettings) {
+        $this->ss = $ss instanceof SearchSettings ?: null;
 
-            $this->ss = $ss;
+        // the relation to the object is optional for the case we are loading some arbitrary units.
+        $this->object = $object instanceof Object ?: null;
 
-            // if we do not have the load settings prevent items auto loading.
-            if ($ls) $this->load($ss, $ls);
+        /*
+        // if we have some input we can auto load the units
+        if ($object || $this->ss) {
+
+            $this->load($this->ss);
 
         }
+        */
 
     }
 
 
-    public static function make($object = null, $ss = null, $ls = null) {
-        return new static($object, $ss, $ls);
+    public static function make($object = null, $ss = null) {
+        return new static($object, $ss);
     }
 
 
-    public function getObject() {
+    /**
+     * @return null|Object
+     */
+    public function object() {
         return $this->object instanceof Object ? $this->object : null;
     }
 
@@ -90,7 +96,7 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
         foreach($unitDummyList as $unit) {
 
             $this->found->idList[] = $unit;
-            $this->found->data[$unit->getId()] = $unit; // cache the model data
+            $this->found->data[$unit->id] = $unit; // cache the model data
 
         }
 
@@ -99,9 +105,9 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
     }
 
 
-    public function load($ss = null, $ls = null) {
+    public function load($ss = null) {
 
-        // perform the unit serach query based on search settings.
+        // perform the unit search query based on search settings.
         // iterate through results and load units.
 
         $unitDummyList = array(
@@ -124,7 +130,7 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
                 // save the unit to unit controller relation - pass the reference $this
                 // if we found the unit we have its id - we`ll use unit loading by id
                 // we need load settings to know what additionally to load for the unit
-                $this->add(new Unit($this, $item->id, $ls));
+                $this->add(new Unit($this, $item->id));
 
             }
 
@@ -147,7 +153,7 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
     }
 
 
-    public function getPriceList() {
+    public function priceList() {
 
         $pl = array();
 
@@ -169,7 +175,7 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
     }
 
 
-    public function getAvailability() {
+    public function availability() {
 
         $availability = array();
 
@@ -195,7 +201,7 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
 
         // iterate through the availability periods and check if the unit is available
 
-        if ($ss->dateFrom && $ss->dateTo && count($periods = $this->getAvailability())) {
+        if ($ss->dateFrom && $ss->dateTo && $this->availability()->count()) {
 
             try {
 
@@ -205,7 +211,8 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
             } catch(\Exception $e) {
                 return false;
             }
-            foreach($this->getAvailability() as $period) {
+
+            foreach($this->availability()->all() as $period) {
 
                 // check the
 
@@ -221,10 +228,6 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
 }
 
 
-class Unit_List {
-
-    public $total;
-    public $idList;
-    public $data;
+class Unit_List extends SearchResultBase {
 
 }

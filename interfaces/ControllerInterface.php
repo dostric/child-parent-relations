@@ -4,7 +4,7 @@
 interface ControllerInterface {
 
 
-    public function load($ss, $ls);
+    public function load($ss);
 
     public function getId();
 

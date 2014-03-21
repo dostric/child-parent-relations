@@ -14,27 +14,35 @@ class Unit implements ControllerInterface {
     protected $id;
 
 
-    protected $data;
+    protected $model;
+
+
+    protected $images;
+
+
+    protected $descriptions;
+
+
+
 
 
     /**
      * @param null $parent
      * @param null|int|SearchSettings $ss
-     * @param null|LoadSettings $ls
      */
-    public function __construct($parent = null, $ss = null, $ls = null) {
+    public function __construct($parent = null, $ss = null) {
 
-        if ($parent && $parent instanceof UnitCollection) {
+        if ($parent instanceof UnitCollection) {
             $this->parent = $parent;
         }
 
-        if ($ss) $this->load($ss, $ls);
+        if ($ss) $this->load($ss);
 
     }
 
 
-    public static function make($parent = null, $ss = null, $ls = null) {
-        return new static($parent, $ss, $ls);
+    public static function make($parent = null, $ss = null) {
+        return new static($parent, $ss);
     }
 
 
@@ -42,10 +50,9 @@ class Unit implements ControllerInterface {
      * Loads one unit data.
      *
      * @param int|array|SearchSettings $ss
-     * @param LoadSettings $ls
      * @return $this
      */
-    public function load($ss, $ls = null) {
+    public function load($ss) {
 
         // determine if we have something valid to load.
         // a good approach is to support multiple search params for loading.
@@ -61,20 +68,12 @@ class Unit implements ControllerInterface {
             if ($dummyUnitData && $dummyUnitData->id == $ss->unitId) {
 
                 // store the base unit data
-                $this->data = $dummyUnitData;
+                $this->model = $dummyUnitData;
                 $this->id = $dummyUnitData->id;
-
-                // do we have something else to load
-                if ($ls) {
-
-                    // if we need unit images load them
-                    if ($ls->unitImages) $this->loadImages();
-
-                }
 
             } else {
 
-                $this->id = $this->data = null;
+                $this->id = $this->model = null;
 
             }
 
@@ -85,13 +84,8 @@ class Unit implements ControllerInterface {
     }
 
 
-    public function model($key = null) {
-
-    }
-
-
     public function getId() {
-        return $this->isLoaded() ? $this->data->id : null;
+        return $this->isLoaded() ? $this->model->id : null;
     }
 
 
@@ -101,44 +95,51 @@ class Unit implements ControllerInterface {
     }
 
 
-    public function loadImages() {
-        // perform image loading
+    /**
+     * @param null|string $key
+     * @return mixed
+     */
+    public function model($key = null) {
+        return $key === null ? $this->model : $this->model->{$key};
     }
 
 
-    public function loadSomethingElse() {
-        // we usually have something else to load.
+    public function object() {
+        return $this->parent instanceof UnitCollection ? $this->parent->object() : null;
     }
 
 
     /**
-     * Simple method to return current unit data.
-     * For a specific key we are returning it value - else we are returning all the values.
-     *
-     * @param null $somethingSpecific
-     * @return mixed
+     * @return PriceListItem_Model[]
      */
-    public function getUnitData($somethingSpecific = null) {
-        return $somethingSpecific === null ? $this->data : $this->data->{$somethingSpecific};
-    }
-
-
-    public function getObject() {
-        return $this->parent instanceof UnitCollection ? $this->parent->getObject() : null;
-    }
-
-
-    public function getPriceList() {
+    public function priceList() {
 
         $pl = array();
 
-        if ($object = $this->getObject()) {
+        if ($object = $this->object()) {
 
-            $pl = $object->priceList()->filter(/* unit filtering data*/);
+            $unitId = $this->getId();
+
+            $pl = $object->priceList()->filter(function ($item) use ($unitId) {
+                return $item->unitId == $unitId;
+            });
 
         }
 
         return $pl;
+
+    }
+
+
+    public function images() {
+
+        if (!$this->images) {
+
+            $this->images = ImageCollection::make($this)->load();
+
+        }
+
+        return $this->images();
 
     }
 

@@ -6,19 +6,17 @@ $ss = new SearchSettings(array(
 
 ));
 
-$ls = new LoadSettings(array(
-
-    'object'    => true,
-    'units'     => true
-
-));
-
 
 // load the object by id
-$object = Object::make(1, $ls);
+$object = Object::make(1);
 
 // get all object units
 $units = $object->units()->all();
+
+$someUnits = $object->units()->filter(function ($item) {
+    // define the filtering
+    return true;
+});
 
 // get one unit by id
 $unit = $object->units()->get(1);
@@ -45,7 +43,7 @@ $priceList = $object->priceList();
 $priceList = $object->priceList()->all();
 
 // unit price list items
-$unitPrices = $object->units()->get(100)->getPriceList();
+$unitPrices = $object->units()->get(100)->priceList();
 
 // custom price list filtering
 $customPriceList = $object->priceList()->filter(function ($item) {});
@@ -60,7 +58,7 @@ $availability = $object->availability()->all();
 
 
 // find the objects matching the search, load the data provided by load settings
-$oCnt = ObjectCollection::make($ss, $ls)
+$oCnt = ObjectCollection::make($ss)
 ->find()
 ->load();
 
@@ -78,7 +76,7 @@ $ids = $oCnt->getList()->idList;
 
 // custom finder
 // base setup, search and load settings are optional
-$oCnt = ObjectCollection::make($ss, $ls);
+$oCnt = ObjectCollection::make($ss);
 
 // do something, check something, setup something
 
@@ -88,5 +86,5 @@ $oCnt->find($ss);
 // do something, check something, setup something
 
 // we`ll load children by new settings
-$oCnt->load($ls);
+$oCnt->load();
 

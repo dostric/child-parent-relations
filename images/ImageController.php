@@ -36,10 +36,35 @@ class ImageCollection extends CollectionBase implements ControllerSearchableInte
 
     public function find($ss) {
 
+        // if we need finding various images - example image gallery
+        return $this;
+
     }
 
 
-    public function load($ls) {
+    public function load($ss = null) {
+
+        if ($ss) {
+
+            //1. we can load by ss
+
+        } else {
+
+            //2. we can load by parent type
+
+            switch(get_class($this->parent)) {
+                case 'Object':
+                    break;
+            }
+
+        }
+
+        $images = array();
+        foreach($images as $i) {
+            $this->add($i);
+        }
+
+        return $this;
 
     }
 
@@ -52,10 +77,6 @@ class ImageCollection extends CollectionBase implements ControllerSearchableInte
 }
 
 
-class Image_List {
-
-    public $total       = 0;
-    public $idList      = array();
-    public $data        = array();
+class Image_List extends SearchResultBase {
 
 }
