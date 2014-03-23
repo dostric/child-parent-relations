@@ -13,12 +13,6 @@ class Object implements ControllerInterface {
 
 
     /**
-     * @var int
-     */
-    protected $id;          // object id
-
-
-    /**
      * @var Object_Model
      */
     protected $model;        // usually represents the main object data - the model.
@@ -53,11 +47,11 @@ class Object implements ControllerInterface {
 
 
     /**
-     * @param mixed $ss main input parameter - represents usually the id or the settings class that defines what object to load.
+     * @param integer|SearchSettings|array $ss usually id or the settings class that defines what object to load.
      */
     public function __construct($ss = null) {
 
-        $this->id = null;
+        $this->model = null;
 
         if ($ss) $this->load($ss);
 
@@ -90,27 +84,10 @@ class Object implements ControllerInterface {
      */
     public function load($ss) {
 
-        /**
-         * 1. First we need to parse the search params to detect what object to load.
-         * 2. If we have something to load try to load the object.
-         * 3. If we successfully loaded the object determine if we need to load additional entities based on load settings.
-         * 4. If needed load additional object entities.
-         * 5. Check if need to load object children
-         * 6. If we need to load object children
-         *      - init the child controller and pass the object instance to have a reference to the parent object
-         *      - pass the search and load settings to the unit controller
-         *
-         */
+        // reset the model
+        $this->model = null;
 
-
-
-
-
-
-        /*
-         * Parse the input, determine what object to laod.
-         *
-         */
+        // parse the input, determine what object to laod.
         if ( !is_object($ss) && is_numeric($ss)) {
             $ss = SearchSettings::factory([
                 'objectId' => $ss
@@ -119,13 +96,12 @@ class Object implements ControllerInterface {
             $ss = SearchSettings::factory($ss);
         }
 
-
+        // we can load by id or by unique set (country, name)
         if ($ss instanceof SearchSettings) {
 
             /*
-             * Load the object from database.
-             * We`ll use the simplest dummy data container an stdClass object.
-             * It is good to us a framework model instead.
+             * Load the object model from database.
+             * For test std class will be used.
              *
              */
             $object = (object)array(
@@ -148,13 +124,12 @@ class Object implements ControllerInterface {
      * @return bool
      */
     public function isLoaded() {
-        // logic for determing if the object is loaded
-        return true;
+        return $this->model instanceof Object_Model && $this->model->id;
     }
 
 
     public function getId() {
-        return $this->id;
+        return $this->isLoaded() ? $this->model('id') : null;
     }
 
 
@@ -184,7 +159,7 @@ class Object implements ControllerInterface {
      * @return UnitCollection
      */
     public function units() {
-        return $this->units ?: ($this->units = UnitCollection::make($this)->load());
+        return $this->units ?: $this->units = UnitCollection::make($this)->load();
     }
 
 
@@ -192,7 +167,7 @@ class Object implements ControllerInterface {
      * @return DescriptionCollection
      */
     public function descriptions() {
-        return $this->descriptions ?: ($this->descriptions = DescriptionCollection::make($this)->load());
+        return $this->descriptions ?: $this->descriptions = DescriptionCollection::make($this)->load();
     }
 
 
@@ -200,7 +175,7 @@ class Object implements ControllerInterface {
      * @return PriceListCollection
      */
     public function priceList() {
-        return $this->priceList ?: ($this->priceList = PriceList::make($this)->load());
+        return $this->priceList ?: $this->priceList = PriceList::make($this)->load();
     }
 
 
@@ -208,7 +183,7 @@ class Object implements ControllerInterface {
      * @return AvailabilityCollection
      */
     public function availability() {
-        return $this->availability ?: ($this->availability = AvailabilityCollection::make($this)->load());
+        return $this->availability ?: $this->availability = AvailabilityCollection::make($this)->load();
     }
 
 
@@ -216,7 +191,7 @@ class Object implements ControllerInterface {
      * @return ImageCollection
      */
     public function images() {
-        return $this->images ?: ($this->images = ImageCollection::make($this)->load());
+        return $this->images ?: $this->images = ImageCollection::make($this)->load();
     }
 
 }

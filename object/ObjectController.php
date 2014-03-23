@@ -133,8 +133,6 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
     }
 
 
-
-
     /**
      * @return Object_List
      */

@@ -11,18 +11,22 @@ class Unit implements ControllerInterface {
     protected $parent;
 
 
-    protected $id;
-
-
+    /**
+     * @var Unit_Model
+     */
     protected $model;
 
 
+    /**
+     * @var ImageCollection
+     */
     protected $images;
 
 
+    /**
+     * @var DescriptionFrom
+     */
     protected $descriptions;
-
-
 
 
 
@@ -54,28 +58,25 @@ class Unit implements ControllerInterface {
      */
     public function load($ss) {
 
-        // determine if we have something valid to load.
-        // a good approach is to support multiple search params for loading.
-        // the easiest one is the unit id, but there can be more
+        $id = null;
+        if (is_array($ss) && array_key_exists('unitId', $ss)) {
 
-        // check
-        if ($ss->unitId) {
+            $id = $ss['unitId'];
 
-            $dummyUnitData = new stdClass();
-            $dummyUnitData->id = 100;
-            $dummyUnitData->name = 'Room 1';
+        } elseif ($ss instanceof SearchSettings) {
 
-            if ($dummyUnitData && $dummyUnitData->id == $ss->unitId) {
+            $id = $ss->unitId;
 
-                // store the base unit data
-                $this->model = $dummyUnitData;
-                $this->id = $dummyUnitData->id;
+        }
 
-            } else {
+        // check integer value; if ok try to load id
+        if (($id = (int)$id) && is_numeric($id) && $id > 0) {
 
-                $this->id = $this->model = null;
-
-            }
+            // load the unit form source
+            // set the model data
+            $this->model = new Unit_Model([
+                'id' => $id
+            ]);
 
         }
 
@@ -84,14 +85,19 @@ class Unit implements ControllerInterface {
     }
 
 
+    /**
+     * @return null|int
+     */
     public function getId() {
         return $this->isLoaded() ? $this->model->id : null;
     }
 
 
+    /**
+     * @return bool
+     */
     public function isLoaded() {
-        // check if the id
-        return true;
+        return $this->model instanceof Unit_Model && $this->model->id;
     }
 
 
@@ -104,6 +110,9 @@ class Unit implements ControllerInterface {
     }
 
 
+    /**
+     * @return null|Object
+     */
     public function object() {
         return $this->parent instanceof UnitCollection ? $this->parent->object() : null;
     }
@@ -118,11 +127,13 @@ class Unit implements ControllerInterface {
 
         if ($object = $this->object()) {
 
-            $unitId = $this->getId();
+            if ($unitId = $this->getId()) {
 
-            $pl = $object->priceList()->filter(function ($item) use ($unitId) {
-                return $item->unitId == $unitId;
-            });
+                $pl = $object->priceList()->filter(function ($item) use ($unitId) {
+                    return $item->unitId == $unitId;
+                });
+
+            }
 
         }
 
@@ -131,16 +142,11 @@ class Unit implements ControllerInterface {
     }
 
 
+    /**
+     * @return ImageCollection
+     */
     public function images() {
-
-        if (!$this->images) {
-
-            $this->images = ImageCollection::make($this)->load();
-
-        }
-
-        return $this->images();
-
+        return $this->images ?: $this->images = ImageCollection::make($this)->load();
     }
 
 
