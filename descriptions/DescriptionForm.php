@@ -82,7 +82,7 @@ class DescriptionFrom implements ControllerInterface {
 
         if ($refKey) {
 
-            // load the form
+            // load the form -set the model
             $this->model = new DescriptionForm_Model();
 
 

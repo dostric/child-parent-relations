@@ -1,7 +1,13 @@
 <?php
 
 
-
+/**
+ * Class DescriptionItemController
+ *
+ * @method DescriptionItem get($id, $default = null)
+ * @method DescriptionItem[] all()
+ *
+ */
 class DescriptionItemController extends CollectionBase implements ControllerSearchableInterface {
 
 
@@ -12,17 +18,18 @@ class DescriptionItemController extends CollectionBase implements ControllerSear
 
 
     /**
-     * @var DescriptionItem_Model[]
+     * @param mixed|null $parent
+     * @param DescriptionItem[]|null $items
      */
-    protected $items;
-
-
-
-    public function __construct($parent = null) {
+    public function __construct($parent = null, $items = null) {
 
         $this->values = array();
 
         $this->parent = $parent;
+
+        if ($items) {
+            parent::__construct($items);
+        }
 
     }
 
@@ -75,17 +82,30 @@ class DescriptionItemController extends CollectionBase implements ControllerSear
         if ($formId) {
 
             // load the items form the source
+            // loading is optimized; we are loading all items and all values;
+
+            /**
+             * @var DescriptionItem_Model[]
+             */
             $items = [];
 
             // obtain the id list of description items
             $itemsIds = [];
 
             // load all item values from the source
-            $values = [];
+            $values = [
+                1 => [/* array of description values */],
+                2 => [/* array of description values */],
+                3 => [/* array of description values */]
+            ];
 
             foreach($items as $k => $item) {
 
-                $itemValues = $values[$item->id]; // get all the
+                // we`ll push items by entity
+                $this->push(
+                    $item->entity,
+                    DescriptionItem::make($this, $item, $values[$item->id])
+                );
 
             }
 
@@ -99,5 +119,6 @@ class DescriptionItemController extends CollectionBase implements ControllerSear
     public function getList() {
 
     }
+
 
 }
