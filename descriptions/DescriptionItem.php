@@ -32,8 +32,8 @@ class DescriptionItem {
     }
 
 
-    public static function make($parent = null, $model = null) {
-        return new static($parent, $model);
+    public static function make($parent = null, $model = null, $values = null) {
+        return new static($parent, $model, $values);
     }
 
 

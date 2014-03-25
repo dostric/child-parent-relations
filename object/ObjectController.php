@@ -122,7 +122,12 @@ class ObjectCollection extends CollectionBase implements ControllerSearchableInt
             // iterate through the found object id list and load the objects.
             foreach($this->found->idList as $id) {
 
-                $this->add(Object::make($id));
+                // if we already have the model (form the find process) use it - we`ll save one query
+                $cachedModel = array_key_exists($id, $this->found->data) ? $this->found->data[$id] : null;
+
+                $this->add(
+                    Object::make($id, $cachedModel)
+                );
 
             }
 

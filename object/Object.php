@@ -42,18 +42,25 @@ class Object implements ControllerInterface {
     protected $availability;
 
 
+    /**
+     * @var PriceListCollection
+     */
     protected $priceList;
-
 
 
     /**
      * @param integer|SearchSettings|array $ss usually id or the settings class that defines what object to load.
+     * @param Object_Model $model
      */
-    public function __construct($ss = null) {
+    public function __construct($ss = null, Object_Model $model = null) {
 
         $this->model = null;
 
-        if ($ss) $this->load($ss);
+        if ($model && $model->id) {
+            $this->model = $model;
+        } else if ($ss) {
+            $this->load($ss);
+        }
 
     }
 
@@ -62,10 +69,11 @@ class Object implements ControllerInterface {
      * Makes the object supporting direct chaining.
      *
      * @param null $ss
+     * @param Object_Model $model
      * @return static
      */
-    public static function make($ss = null) {
-        return new static($ss);
+    public static function make($ss = null, Object_Model $model = null) {
+        return new static($ss, $model);
     }
 
 
@@ -111,7 +119,6 @@ class Object implements ControllerInterface {
 
             // the loaded object id valid
             $this->model = new Object_Model($object);
-            $this->id = $object->id;
 
         }
 

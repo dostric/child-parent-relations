@@ -11,6 +11,9 @@
 class UnitCollection extends CollectionBase implements  ControllerSearchableInterface {
 
 
+    /**
+     * @var SearchSettings
+     */
     protected $ss;
 
 
@@ -70,15 +73,29 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
 
     }
 
+
     public function find($ss) {
 
         // reset the found data
         $this->reset();
 
+        // detect search
+        if (is_array($ss)) {
+            $ss = SearchSettings::factory($ss);
+        } elseif ($ss instanceof Object) {
+            $ss = SearchSettings::factory([
+                'id' => $ss->getId()
+            ]);
+        }
+
         // search for units based on input params
         $this->ss = $ss instanceof SearchSettings ?: null;
 
         if ($this->ss) {
+
+            if ($ss->id) {
+                // load object units
+            }
 
             // find the units and get the result
             $unitDummyList = array(
@@ -108,6 +125,12 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
     }
 
 
+    /**
+     * Loads units defined by settings if provided
+     *      else loads the parent obect units if parent exists (this->object)
+     * @param SearchSettings|null $ss
+     * @return $this
+     */
     public function load($ss = null) {
 
         // set defaults
@@ -125,7 +148,6 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
             ]);
 
         }
-
 
         if ($ss instanceof SearchSettings && $ss->id) {
 
@@ -195,6 +217,40 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
     }
 
 
+    public function availableUnits(SearchSettings $ss) {
+
+        $availableUnits = $this->all();
+
+        if ($ss->dateFrom && $ss->dateTo) {
+
+            if ($availability = $this->object()->availability()) {
+
+                // filter $availableUnits units
+
+            }
+
+        }
+
+        return $availableUnits;
+
+    }
+
+
+    public function unAvailableUnits(SearchSettings $ss) {
+
+        $unaAvailableUnits = array();
+        $allUnits = $this->all();
+        $availableUnits = $this->availableUnits($ss);
+
+        foreach($allUnits as $unit) {
+            // if unit is not in availableUnits = the unit is not available
+        }
+
+        return $unaAvailableUnits;
+
+    }
+
+
     public function availability() {
 
         $availability = array();
@@ -217,7 +273,7 @@ class UnitCollection extends CollectionBase implements  ControllerSearchableInte
      * @param SearchSettings $ss
      * @return bool
      */
-    public function isAvailable($ss) {
+    public function isFree($ss) {
 
         // iterate through the availability periods and check if the unit is available
 
